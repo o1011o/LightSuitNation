@@ -1,4 +1,5 @@
 # LightSuitNation
+(read the RAW version of this for the ASCII-art formatting to make sense)
 
 Here's a paradigm for programming NeoPixels:  Multiple virtual strips interacting before producing a final output strip state.  We use multiple color strips whose values, pixel by pixel, are added together to create a master color strip, like so:
 
