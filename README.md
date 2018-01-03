@@ -1,20 +1,25 @@
 # LightSuitNation
 
-This readme sucks, but it will get better.
+Here's a paradigm for programming NeoPixels:  Multiple virtual strips interacting before producing a final output strip state.  We use multiple color strips whose values, pixel by pixel, are added together to create a master color strip, like so:
 
-Here's a paradigm for programming NeoPixels:  Multiple virtual color strips added together viewed through a visibility/intensity layer.  Like so:
+Strip1 = red,   red,   green, green, blue,  blue.  (6 pixels, each pixel having an rgb value that produces the color named.)
+          +      +       +      +      +      +
+Strip2 = black, blue,  black, green, white, green.
+          =      =       =      =      =      =
+master = red,   purple,green, green, white, teal.
 
-color strips are 2d arrays, length equal to number of pixels, width equal to 3 (r,g,b) values from 0-255 (usually*).
-intensity strips are the same size, with decimal values from 0-1.
+This final strip, being the sum of the previous ones, can easily produce a lot of whites, such as in a case of rgb pixels adding together like this:
 
-(colorStrip1 + colorStrip2) * (intensityStrip1 + intensityStrip2) = output
+pixel1 = 255,   0, 255  (these are rgb values now)
+          +    +    +
+pixel2 = 0,   255,   0
+          =    =    =
+master = 255, 255, 255
 
-color strips have a ton of variables that can hopefully be attached to physical controls at some point, but in the meantime they can still be set programmatically.  Brightness, speed, color themes, etc.  If adding a lot of color strips, reduce each one's brightness so the final result isn't washed out.  Same with intensity strips.
+In order to avoid washing things out too much you can adjust the brightness of each strip individually.
 
-Color and intensity strips are the same thing used differently -- if showSineWaves == true that array is treated like a color array and left as 0-255 color values.  if instead showSineWavesIntensity == true then those values are translated to 0-1 and it's calculated as intensity.  
+Once we've come up with some fun combination of color strips (or just a single one) we can then come up with some intensity strips using the same method.  Intensity strips are converted before processing from rgb 0-255 values into a percentage (0.0-1.0) and then multiplied by the value of the color strips.  This lets us put, say, a RainbowCycle color strip down that fills the entire strip with color all the time, but then combine it with a SineWave intensity strip that will put half of it in darkness at any given time.  Conceptualize it by imagining the intensity strips as a transparency layer through which you are seeing the color strips beneath.
 
-Themes are 1d arrays of rgb color values that can be used by a function to randomly choose from.
-Default parameters are set right after themes.  If those values are changed in the scheduler they'll have to be changed back manually until next runtime.
-Scheduler is a place to program in changes to variables, making different strips active, shit like that.
+Color and intensity strips use the same programming, we just denote at the time of creation what type they are.
 
-I made an object-oriented version of this but it had too much overhead for poor little adafruit flora...I may still go back to that paradigm if I can make it fit.
+That's the basic paradigm, check out the commented sections of the actual code for more details.
