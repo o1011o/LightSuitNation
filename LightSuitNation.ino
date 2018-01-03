@@ -133,22 +133,22 @@ class SineWaves: public VirtualStrip {
     float f = 0;
     int velocity = 10;
 
-// /---------------------------------- constructor -------------------------------------\
-// | When you create an object of this type in the schedule, you'll often use its       |
-// | constructor to do so.  The constructor sets the variables for this object upon     |
-// | creation.  A default constructor for when you pass it no variables will use all    |
-// | defaults:  Color strip, full brightness, velocity 10, period = length of strip,    |
-// | theme_primary.  To make a sine wave with different parameters, include new values  |
-// | for what you want, but you must include every variable in order.  To create a      |
-// | reversed intensity strip we'd do this:  SineWaves(false, 1.0, -10, 24, theme_white)|
-// | 'false' means it's not a color strip, 1.0 means it's still full brightness, -10    |
-// | means it will go backwards at speed 10, 24 is the period of the wave, and          |
-// | theme_white ensures that we are going to affect brightness in an uncolored way.    |
-// | (you can affect brightness of different rgb channels in different amounts as well.)|
-// | Look at how the constructor is laid out for each effect, they're all different,    |
-// | although there is a convention to always have color and brightness first, then     |
-// | unique variables, and lastly theme or themes.                                      |
-// \------------------------------------------------------------------------------------/
+    // /---------------------------------- constructor -------------------------------------\
+    // | When you create an object of this type in the schedule, you'll often use its       |
+    // | constructor to do so.  The constructor sets the variables for this object upon     |
+    // | creation.  A default constructor for when you pass it no variables will use all    |
+    // | defaults:  Color strip, full brightness, velocity 10, period = length of strip,    |
+    // | theme_primary.  To make a sine wave with different parameters, include new values  |
+    // | for what you want, but you must include every variable in order.  To create a      |
+    // | reversed intensity strip we'd do this:  SineWaves(false, 1.0, -10, 24, theme_white)|
+    // | 'false' means it's not a color strip, 1.0 means it's still full brightness, -10    |
+    // | means it will go backwards at speed 10, 24 is the period of the wave, and          |
+    // | theme_white ensures that we are going to affect brightness in an uncolored way.    |
+    // | (you can affect brightness of different rgb channels in different amounts as well.)|
+    // | Look at how the constructor is laid out for each effect, they're all different,    |
+    // | although there is a convention to always have color and brightness first, then     |
+    // | unique variables, and lastly theme or themes.                                      |
+    // \------------------------------------------------------------------------------------/
     SineWaves() {}
     SineWaves(bool isi, float bri, int vel, uint8_t per, int the[]) {
       velocity = vel;
@@ -505,11 +505,12 @@ void scheduler() {
     }
     return;
   }
-  if (tick > 70) {  
+  if (tick > 70) {
     if (schedule == 7) {
       for (uint8_t i = 0; i < numStrips; i++) {  //delete old VirtualStrips
         delete strips[i];
       }
+      delete strips;
       numStrips = 2;  //set to the number of new strips we're about to create
       strips = new VirtualStrip * [numStrips];  //set our global 'strips' equal to a new array to hold this shit
       VirtualStrip * s1 = new SineWaves(true, 1.0, -10, 12, theme_warm);
@@ -520,11 +521,12 @@ void scheduler() {
     }
     return;
   }
-  if (tick > 60) {  
+  if (tick > 60) {
     if (schedule == 6) {
       for (uint8_t i = 0; i < numStrips; i++) {  //delete old VirtualStrips
         delete strips[i];
       }
+      delete strips;
       numStrips = 2;  //set to the number of new strips we're about to create
       strips = new VirtualStrip * [numStrips];  //set our global 'strips' equal to a new array to hold this shit
       VirtualStrip * s1 = new Noise(true, 1.0, 0, theme_megalegs, theme_black);
@@ -535,11 +537,12 @@ void scheduler() {
     }
     return;
   }
-  if (tick > 50) {  
+  if (tick > 50) {
     if (schedule == 5) {
       for (uint8_t i = 0; i < numStrips; i++) {  //delete old VirtualStrips
         delete strips[i];
       }
+      delete strips;
       numStrips = 2;  //set to the number of new strips we're about to create
       strips = new VirtualStrip * [numStrips];  //set our global 'strips' equal to a new array to hold this shit
       VirtualStrip * s1 = new Fire();
@@ -550,11 +553,12 @@ void scheduler() {
     }
     return;
   }
-  if (tick > 40) {  
+  if (tick > 40) {
     if (schedule == 4) {
       for (uint8_t i = 0; i < numStrips; i++) {  //delete old VirtualStrips
         delete strips[i];
       }
+      delete strips;
       numStrips = 2;  //set to the number of new strips we're about to create
       strips = new VirtualStrip * [numStrips];  //set our global 'strips' equal to a new array to hold this shit
       VirtualStrip * s1 = new RandomBlinkAndFade(false, 1.0, 0.9, theme_primary);
@@ -565,11 +569,12 @@ void scheduler() {
     }
     return;
   }
-  if (tick > 30) {  
+  if (tick > 30) {
     if (schedule == 3) {
       for (uint8_t i = 0; i < numStrips; i++) {  //delete old VirtualStrips
         delete strips[i];
       }
+      delete strips;
       numStrips = 3;  //set to the number of new strips we're about to create
       strips = new VirtualStrip * [numStrips];  //set our global 'strips' equal to a new array to hold this shit
       VirtualStrip * s1 = new RainbowCycle();
@@ -582,11 +587,12 @@ void scheduler() {
     }
     return;
   }
-  if (tick > 20) {  
+  if (tick > 20) {
     if (schedule == 2) {
       for (uint8_t i = 0; i < numStrips; i++) {  //delete old VirtualStrips
         delete strips[i];
       }
+      delete strips;
       numStrips = 2;  //set to the number of new strips we're about to create
       strips = new VirtualStrip * [numStrips];  //set our global 'strips' equal to a new array to hold this shit
       VirtualStrip * s1 = new Fire();
@@ -602,6 +608,7 @@ void scheduler() {
       for (uint8_t i = 0; i < numStrips; i++) {  //delete old VirtualStrips
         delete strips[i];
       }
+      delete strips;
       numStrips = 2;  //set to the number of new strips we're about to create
       strips = new VirtualStrip * [numStrips];  //set our global 'strips' equal to a new array to hold this shit
       VirtualStrip * s1 = new RandomBlinkAndFade();
@@ -629,6 +636,7 @@ void scheduler() {
       for (uint8_t i = 0; i < numStrips; i++) {  //delete old VirtualStrips
         delete strips[i];
       }
+      delete strips;
       numStrips = 2;
       strips = new VirtualStrip * [numStrips];
       VirtualStrip * s1 = new SineWaves(true, 1.0, 30, 24, theme_primary);  //create a new VirtualStrip of type SineWaves with modified variables
@@ -637,7 +645,7 @@ void scheduler() {
       strips[1] = s2;
       schedule = schedule + 1;  //iterate the schedule counter so this block doesn't execute again until after it's looped.
     }
-    return;  
+    return;
   }
 }
 
