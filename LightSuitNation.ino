@@ -403,6 +403,51 @@ class Fire: public VirtualStrip {
     }
 };
 
+class Test: public VirtualStrip {
+  public:
+    int i = 0;
+    float wavelength = 0.0;  //wavelength
+    float moveSpeed = 2.0;  //values between 0.1 and 10ish, higher is faster
+    Test() {}
+    Test(bool isi, float bri, float mov, int the[]) {
+      isColor = isi;
+      brightness = bri;
+      moveSpeed = mov;
+      theme1 = the;
+    }
+    void update() {
+      for (uint8_t p = 0; p < NUM_LEDS; ++p) {
+        setVPixel(p, 0, 0, 0);
+      }
+      for (uint8_t p = 0; p < NUM_LEDS; ++p) {
+        float fp = p;
+        float pixelBrightness = sin(fp / abs(wavelength) * 3.14159 + 1.57); //this is the pixel's brightness (-1 to 1), based on the sine of it's percentage along the strip times pi=
+        float nr = theme1[theme1Index] * pixelBrightness;
+        float ng = theme1[theme1Index + 1] * pixelBrightness;
+        float nb = theme1[theme1Index + 2] * pixelBrightness;
+        setVPixel(p, nr, ng, nb);  //set the virtual pixel in the virtual strip equal to the value we've calculated.
+        if (pixelBrightness < 0.01) break;
+      }
+      wavelength = wavelength + moveSpeed;
+      if (wavelength >= NUM_LEDS * 2) {
+        wavelength = NUM_LEDS * -2;
+      }
+      if (wavelength == 0) {
+        newRandomThemeIndices();
+      }
+    }
+};
+
+class Simple: public VirtualStrip {
+  public:
+    Simple() {}
+    void update() {
+      for (uint8_t p = 0; p < NUM_LEDS; ++p) {
+        setVPixel(p, 255, 255, 255);
+      }
+    }
+};
+
 // --- Global variables. ---
 VirtualStrip ** strips;  //This one is the pointer that keeps track of all current VirtualStrips.
 float strip_color[NUM_LEDS][3];  // the virtual strip that stores the collective (additive) color values of all the others
@@ -461,13 +506,17 @@ void setPixel(uint8_t p, int r, int g, int b) {
 // | you add them in the scheduler to account for this.                                 |
 // \------------------------------------------------------------------------------------/
 void refresh() {
+  bool intensityExists = false;
+  float r = 0;
+  float g = 0;
+  float b = 0;
   for (uint8_t p = 0; p < NUM_LEDS; p++) { //for each pixel
     strip_color[p][0] = 0;
     strip_color[p][1] = 0;
     strip_color[p][2] = 0;
-    strip_intensity[p][0] = 255.0;
-    strip_intensity[p][1] = 255.0;
-    strip_intensity[p][2] = 255.0;
+    strip_intensity[p][0] = 0.0;
+    strip_intensity[p][1] = 0.0;
+    strip_intensity[p][2] = 0.0;
     for (uint8_t i = 0; i < numStrips; i++) {  //for each virtual strip, color or intensity
       if (strips[i]->isColor == true) {  //if this strip is a color strip, add its values to the main virtual color strip
         strip_color[p][0] = strip_color[p][0] + strips[i]->strip[p][0] * strips[i]->brightness;
@@ -475,14 +524,22 @@ void refresh() {
         strip_color[p][2] = strip_color[p][2] + strips[i]->strip[p][2] * strips[i]->brightness;
       }
       else {  //else it's an intensity strip, so add its values to the main virtual intensity strip
+        intensityExists = true;
         strip_intensity[p][0] = strip_intensity[p][0] + strips[i]->strip[p][0] * strips[i]->brightness;
         strip_intensity[p][1] = strip_intensity[p][1] + strips[i]->strip[p][1] * strips[i]->brightness;
         strip_intensity[p][2] = strip_intensity[p][2] + strips[i]->strip[p][2] * strips[i]->brightness;
       }
     }
-    float r = strip_color[p][0] * strip_intensity[p][0] / 255;
-    float g = strip_color[p][1] * strip_intensity[p][1] / 255;
-    float b = strip_color[p][2] * strip_intensity[p][2] / 255;
+    if (intensityExists) {
+      r = strip_color[p][0] * strip_intensity[p][0] / 255;
+      g = strip_color[p][1] * strip_intensity[p][1] / 255;
+      b = strip_color[p][2] * strip_intensity[p][2] / 255;
+    }
+    else {
+      r = strip_color[p][0];
+      g = strip_color[p][1];
+      b = strip_color[p][2];
+    }
     setPixel(p, r, g, b); //assign the virtual strip pixel values to the actual physical LED strip
     //something is crashing before here
   }
@@ -498,10 +555,26 @@ void refresh() {
 // | constructor has some notes on it for your ass.                                     |
 // \------------------------------------------------------------------------------------/
 void scheduler() {
-  if (tick > 80) {  //This is the final schedule block, all we'll do is reset 'tick' and 'schedule' to 0 and it will loop.
-    if (schedule >= 8) {
+  if (tick > 90) {  //This is the final schedule block, all we'll do is reset 'tick' and 'schedule' to 0 and it will loop.
+    if (schedule >= 9) {
       tick = 0;
       schedule = 0;
+    }
+    return;
+  }
+  if (tick > 80) {
+    if (schedule == 8) {
+      for (uint8_t i = 0; i < numStrips; i++) {  //delete old VirtualStrips
+        delete strips[i];
+      }
+      delete strips;
+      numStrips = 2;
+      strips = new VirtualStrip * [numStrips];
+      VirtualStrip * s1 = new Test(false, 1.0, 2.0, theme_white);
+      VirtualStrip * s2 = new RainbowCycle();
+      strips[0] = s1;
+      strips[1] = s2;
+      schedule = schedule + 1;  //iterate the schedule counter so this block doesn't execute again until after it's looped.
     }
     return;
   }
